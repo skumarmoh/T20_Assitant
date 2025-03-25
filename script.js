@@ -1,12 +1,16 @@
 async function fetchPlayers() {
     try {
-        let response = await fetch("https://api.cricapi.com/v1/players?apikey=YOUR_API_KEY"); // Replace with your API key
+        console.log("Fetching players..."); // Debugging
+
+        let response = await fetch("https://api.cricapi.com/v1/players?apikey=6fa864a2-723b-420b-8151-5210b1d2b69d");  // Replace with your actual API key
         let data = await response.json();
 
-        let playerList = document.getElementById("player-list");
-        playerList.innerHTML = ""; // Clear previous results
+        console.log("API Response:", data); // 👀 Check API response
 
-        if (data.status === "success" && data.data.length > 0) {
+        let playerList = document.getElementById("player-list");
+        playerList.innerHTML = ""; // Clear old data
+
+        if (data.status === "success" && data.data && data.data.length > 0) {
             data.data.forEach(player => {
                 let li = document.createElement("li");
                 li.textContent = `${player.name} - ${player.country}`;
