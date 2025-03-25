@@ -1,24 +1,27 @@
 <?php
-header("Content-Type: application/json");  // Set header for JSON response
+// fetchPlayers.php
+header("Content-Type: application/json");
 
-$apiKey = "359f174e-a477-4040-a65c-e98f87ea0ed4";  // Your updated API key
-$url = "https://api.cricapi.com/v1/players?apikey=" . $apiKey;
+// CricAPI Key
+$apiKey = "359f174e-a477-4040-a65c-e98f87ea0ed4";
 
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, $url);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
+// API URL
+$apiUrl = "https://cricapi.com/api/playerFinder?apikey=$apiKey";
 
-$response = curl_exec($ch);
-$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-curl_close($ch);
+// Get the player name from query string
+if (isset($_GET['name'])) {
+    $playerName = urlencode($_GET['name']);
+    $url = "$apiUrl&name=$playerName";
 
-// Check response and return JSON data
-if ($httpCode == 200) {
-    echo $response; 
+    // Fetch data from CricAPI
+    $response = file_get_contents($url);
+    if ($response === FALSE) {
+        echo json_encode(["error" => "Unable to fetch data from API"]);
+        exit;
+    }
+
+    echo $response; // Return response to the frontend
 } else {
-    echo json_encode(["status" => "error", "message" => "API request failed", "code" => $httpCode]);
+    echo json_encode(["error" => "Missing 'name' query parameter"]);
 }
 ?>
