@@ -42,16 +42,23 @@
     <pre id="output">Click the button to fetch data...</pre>
 
     <script>
-        document.getElementById("fetchDataBtn").addEventListener("click", function() {
-            fetch("fetchData.php")  // Make sure this PHP file is on your server
-                .then(response => response.json())
-                .then(data => {
-                    console.log("API Data:", data);
-                    document.getElementById("output").innerText = JSON.stringify(data, null, 2);
-                })
-                .catch(error => console.error("Error fetching data:", error));
-        });
-    </script>
+    document.getElementById("fetchDataBtn").addEventListener("click", fetchPlayers);
+
+    function fetchPlayers() {
+        fetch("fetchData.php")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("HTTP status " + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("API Data:", data);
+                document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error("Error fetching data:", error));
+    }
+</script>
 
 </body>
 </html>
