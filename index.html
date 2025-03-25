@@ -3,50 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Player Finder</title>
+    <title>Cricket Player Stats</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-        }
-        .results {
-            margin-top: 20px;
-        }
+        body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+        input, button { padding: 10px; margin: 10px; }
+        table { border-collapse: collapse; margin: 20px auto; width: 90%; }
+        table, th, td { border: 1px solid black; }
+        th, td { padding: 10px; text-align: left; }
+        .error { color: red; }
     </style>
 </head>
 <body>
-    <h1>Cricket Player Finder</h1>
+    <h1>Cricket Player Statistics</h1>
     <input type="text" id="playerName" placeholder="Enter player name">
-    <button onclick="fetchPlayer()">Search</button>
-    <div class="results" id="results"></div>
-
+    <button onclick="searchPlayer()">Search Player</button>
+    <div id="results"></div>
     <script>
-        async function fetchPlayer() {
-            const playerName = document.getElementById("playerName").value;
-            const resultsDiv = document.getElementById("results");
+        async function searchPlayer() {
+            const playerName = document.getElementById('playerName').value;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
 
-            if (playerName.trim() === "") {
-                resultsDiv.innerHTML = "<p>Please enter a player name.</p>";
+            if (playerName.trim() === '') {
+                resultsDiv.innerHTML = '<p class="error">Please enter a player name.</p>';
                 return;
             }
 
-            const response = await fetch(`fetchPlayers.php?name=${playerName}`);
-            const data = await response.json();
+            // Search for players
+            const searchResponse = await fetch(`searchPlayers.php?name=${playerName}`);
+            const searchData = await searchResponse.json();
 
-            if (data.error) {
-                resultsDiv.innerHTML = `<p>Error: ${data.error}</p>`;
-            } else if (data.data && data.data.length > 0) {
-                resultsDiv.innerHTML = "<h3>Players Found:</h3>";
-                data.data.forEach(player => {
-                    resultsDiv.innerHTML += `<p>${player.fullName} (ID: ${player.pid})</p>`;
+            if (searchData.error) {
+                resultsDiv.innerHTML = `<p class="error">${searchData.error}</p>`;
+            } else if (searchData.data && searchData.data.length > 0) {
+                let playerList = '<h3>Players Found:</h3><ul>';
+                searchData.data.forEach(player => {
+                    playerList += `<li onclick="fetchStats(${player.pid})">${player.fullName}</li>`;
                 });
+                playerList += '</ul>';
+                resultsDiv.innerHTML = playerList;
             } else {
-                resultsDiv.innerHTML = "<p>No players found.</p>";
+                resultsDiv.innerHTML = '<p>No players found.</p>';
+            }
+        }
+
+        async function fetchStats(playerId) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Loading player stats...</p>';
+
+            // Fetch player stats
+            const statsResponse = await fetch(`playerStats.php?pid=${playerId}`);
+            const statsData = await statsResponse.json();
+
+            if (statsData.error) {
+                resultsDiv.innerHTML = `<p class="error">${statsData.error}</p>`;
+            } else {
+                let statsTable = '<h3>Player Stats</h3><table>';
+                statsTable += `<tr><th>Name</th><td>${statsData.name}</td></tr>`;
+                statsTable += `<tr><th>Matches</th><td>${statsData.data.batting.innings}</td></tr>`;
+                statsTable += `<tr><th>Runs</th><td>${statsData.data.batting.runs}</td></tr>`;
+                statsTable += `<tr><th>Wickets</th><td>${statsData.data.bowling.wickets}</td></tr>`;
+                statsTable += `<tr><th>Batting Avg</th><td>${statsData.data.batting.average}</td></tr>`;
+                statsTable += `<tr><th>Bowling Avg</th><td>${statsData.data.bowling.average}</td></tr>`;
+                statsTable += '</table>';
+                resultsDiv.innerHTML = statsTable;
             }
         }
     </script>
