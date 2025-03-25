@@ -3,61 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IPL Best Players</title>
+    <title>IPL Fantasy Players Data</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        button { padding: 10px 15px; font-size: 16px; cursor: pointer; }
-        ul { list-style: none; padding: 0; }
-        li { padding: 8px; font-size: 18px; border-bottom: 1px solid #ddd; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            text-align: left;
+            background: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 600px;
+            margin: 20px auto;
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body>
 
-    <h2>IPL T20 Best Players</h2>
-    <button onclick="fetchPlayers()">Show Best Players</button>
+    <h1>IPL Fantasy Players Data</h1>
+    <button id="fetchDataBtn">Show Best Players</button>
     
-    <h3>Top Batters</h3>
-    <ul id="batters-list">Click the button to load data.</ul>
-
-    <h3>Top Bowlers</h3>
-    <ul id="bowlers-list"></ul>
+    <h2>Player Data:</h2>
+    <pre id="output">Click the button to fetch data...</pre>
 
     <script>
-        function fetchPlayers() {
-            fetch("fetch_players.php")
+        document.getElementById("fetchDataBtn").addEventListener("click", function() {
+            fetch("fetchData.php")  // Make sure this PHP file is on your server
                 .then(response => response.json())
                 .then(data => {
-                    console.log("API Response:", data);
-                    
-                    if (data.status !== "success") {
-                        document.getElementById("batters-list").innerHTML = "<li>Error fetching player data.</li>";
-                        return;
-                    }
-
-                    let players = data.data;
-                    let battersList = document.getElementById("batters-list");
-                    let bowlersList = document.getElementById("bowlers-list");
-
-                    battersList.innerHTML = "";
-                    bowlersList.innerHTML = "";
-
-                    let batters = players.filter(player => player.role.includes("Batsman"));
-                    let bowlers = players.filter(player => player.role.includes("Bowler"));
-
-                    batters.slice(0, 5).forEach(player => {
-                        let li = document.createElement("li");
-                        li.textContent = player.name;
-                        battersList.appendChild(li);
-                    });
-
-                    bowlers.slice(0, 5).forEach(player => {
-                        let li = document.createElement("li");
-                        li.textContent = player.name;
-                        bowlersList.appendChild(li);
-                    });
+                    console.log("API Data:", data);
+                    document.getElementById("output").innerText = JSON.stringify(data, null, 2);
                 })
                 .catch(error => console.error("Error fetching data:", error));
-        }
+        });
     </script>
 
 </body>
