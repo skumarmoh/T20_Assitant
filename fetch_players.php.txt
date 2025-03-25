@@ -1,0 +1,26 @@
+<?php
+header("Content-Type: application/json");
+
+// API URL & Key
+$api_key = "YOUR_API_KEY";
+$api_url = "https://api.cricapi.com/v1/players?apikey=$api_key";
+
+// Fetch Data from API
+$response = file_get_contents($api_url);
+if ($response === FALSE) {
+    echo json_encode(["status" => "failure", "reason" => "API request failed"]);
+    exit;
+}
+
+// Convert JSON response to PHP array
+$data = json_decode($response, true);
+
+// Check if the API request was successful
+if ($data["status"] !== "success") {
+    echo json_encode(["status" => "failure", "reason" => "Invalid API response"]);
+    exit;
+}
+
+// Return Player Data as JSON
+echo json_encode(["status" => "success", "data" => $data["data"]]);
+?>
